@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Theme.WebViewApp" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Personaliza si quieres -->
+    </style>
+
+</resources>

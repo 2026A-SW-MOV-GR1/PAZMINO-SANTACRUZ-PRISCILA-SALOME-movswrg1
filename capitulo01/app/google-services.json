@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "654830459706",
+    "project_id": "moviles-2026a-gr1-psps",
+    "storage_bucket": "moviles-2026a-gr1-psps.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654830459706:android:e3a240dfdbe353014a4e03",
+        "android_client_info": {
+          "package_name": "com.example.moviles2026aswgr1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ_oq5C3DGjBbUj7WRoz4yyURZBNmKZI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
