@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.NetflixClone" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/netflix_black</item>
+        <item name="android:statusBarColor">@color/netflix_black</item>
+        <item name="android:navigationBarColor">@color/netflix_black</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.NetflixClone" parent="Base.Theme.NetflixClone" />
+
+</resources>
