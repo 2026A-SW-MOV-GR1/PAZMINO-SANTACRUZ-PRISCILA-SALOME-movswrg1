@@ -19,59 +19,68 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.button.MaterialButton
-import org.maplibre.android.MapLibre
-import org.maplibre.android.annotations.Icon
-import org.maplibre.android.annotations.IconFactory
-import org.maplibre.android.annotations.Marker
-import org.maplibre.android.annotations.MarkerOptions
-import org.maplibre.android.camera.CameraPosition
-import org.maplibre.android.camera.CameraUpdateFactory
-import org.maplibre.android.geometry.LatLng
-import org.maplibre.android.maps.MapLibreMap
-import org.maplibre.android.maps.MapView
 import java.util.Locale
 
-@Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
 
+    // Componente visual de Google Maps.
     private lateinit var mapView: MapView
-    private lateinit var mapa: MapLibreMap
 
+    // Objeto utilizado para controlar Google Maps.
+    private lateinit var mapa: GoogleMap
+
+    // Elementos de la interfaz.
     private lateinit var tvCoordenadas: TextView
     private lateinit var btnUsarUbicacion: MaterialButton
     private lateinit var btnConfirmarUbicacion: MaterialButton
 
+    // Servicio de ubicación del dispositivo.
     private lateinit var locationManager: LocationManager
 
+    // Marcador colocado actualmente.
     private var marcadorSeleccionado: Marker? = null
 
+    // Coordenadas elegidas.
     private var latitudSeleccionada: Double? = null
     private var longitudSeleccionada: Double? = null
 
-    /*
-     * Se utiliza para detener la búsqueda de ubicación
-     * cuando se cumplen los 15 segundos.
-     */
+    // Controla el tiempo máximo de búsqueda de ubicación.
     private val manejadorUbicacion =
         Handler(Looper.getMainLooper())
 
     private var listenerUbicacion: LocationListener? = null
     private var tareaTiempoEspera: Runnable? = null
 
+    /**
+     * Solicita los permisos de ubicación.
+     */
     private val solicitudPermisosUbicacion =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permisos ->
 
             val permisoPreciso =
-                permisos[Manifest.permission.ACCESS_FINE_LOCATION] == true
+                permisos[
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ] == true
 
             val permisoAproximado =
-                permisos[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+                permisos[
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ] == true
 
             if (permisoPreciso || permisoAproximado) {
 
+                activarCapaMiUbicacion()
                 obtenerUbicacionActual()
 
             } else {
@@ -87,20 +96,29 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        MapLibre.getInstance(this)
-
         setContentView(R.layout.activity_main)
 
-        mapView = findViewById(R.id.mapView)
-        tvCoordenadas = findViewById(R.id.tvCoordenadas)
-        btnUsarUbicacion = findViewById(R.id.btnUsarUbicacion)
+        mapView =
+            findViewById(R.id.mapView)
+
+        tvCoordenadas =
+            findViewById(R.id.tvCoordenadas)
+
+        btnUsarUbicacion =
+            findViewById(R.id.btnUsarUbicacion)
 
         btnConfirmarUbicacion =
             findViewById(R.id.btnConfirmarUbicacion)
 
         locationManager =
-            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            getSystemService(
+                Context.LOCATION_SERVICE
+            ) as LocationManager
 
+        /*
+         * Inicializa el ciclo de vida del mapa
+         * antes de solicitar GoogleMap.
+         */
         mapView.onCreate(savedInstanceState)
 
         configurarMapa()
@@ -108,7 +126,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Carga el mapa y lo centra inicialmente en Quito.
+     * Inicializa Google Maps y centra inicialmente
+     * la cámara en Quito.
      */
     private fun configurarMapa() {
 
@@ -116,36 +135,47 @@ class MainActivity : AppCompatActivity() {
 
             mapa = mapaPreparado
 
-            mapa.setStyle(
-                "https://tiles.openfreemap.org/styles/liberty"
-            ) {
+            // Configuración general del mapa.
+            mapa.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-                val ubicacionQuito = LatLng(
-                    -0.1807,
-                    -78.4678
+            mapa.uiSettings.isZoomControlsEnabled = false
+            mapa.uiSettings.isCompassEnabled = true
+            mapa.uiSettings.isMapToolbarEnabled = false
+            mapa.uiSettings.isZoomGesturesEnabled = true
+            mapa.uiSettings.isScrollGesturesEnabled = true
+            mapa.uiSettings.isRotateGesturesEnabled = true
+            mapa.uiSettings.isTiltGesturesEnabled = true
+
+            val ubicacionQuito = LatLng(
+                -0.1807,
+                -78.4678
+            )
+
+            mapa.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    ubicacionQuito,
+                    14f
                 )
+            )
 
-                mapa.cameraPosition =
-                    CameraPosition.Builder()
-                        .target(ubicacionQuito)
-                        .zoom(14.0)
-                        .build()
+            /*
+             * Permite seleccionar manualmente
+             * un punto tocando el mapa.
+             */
+            mapa.setOnMapClickListener { punto ->
 
-                mapa.addOnMapClickListener { punto ->
-
-                    seleccionarUbicacion(
-                        punto = punto,
-                        titulo = "Incidencia seleccionada"
-                    )
-
-                    true
-                }
+                seleccionarUbicacion(
+                    punto = punto,
+                    titulo = "Incidencia seleccionada"
+                )
             }
+
+            activarCapaMiUbicacion()
         }
     }
 
     /**
-     * Configura los botones de la pantalla principal.
+     * Configura las acciones de los botones.
      */
     private fun configurarBotones() {
 
@@ -178,7 +208,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Abre el formulario y envía las coordenadas seleccionadas.
+     * Abre el formulario y envía las coordenadas.
      */
     private fun abrirFormulario(
         latitud: Double,
@@ -210,7 +240,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Comprueba si la aplicación tiene permisos de ubicación.
+     * Verifica los permisos de ubicación.
      */
     private fun verificarPermisosUbicacion() {
 
@@ -231,6 +261,7 @@ class MainActivity : AppCompatActivity() {
             permisoAproximado == PackageManager.PERMISSION_GRANTED
         ) {
 
+            activarCapaMiUbicacion()
             obtenerUbicacionActual()
 
         } else {
@@ -245,8 +276,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Obtiene la ubicación usando GPS y red.
-     * La búsqueda se cancela después de 15 segundos.
+     * Activa el punto azul de ubicación de Google Maps.
+     */
+    @SuppressLint("MissingPermission")
+    private fun activarCapaMiUbicacion() {
+
+        if (!::mapa.isInitialized) {
+            return
+        }
+
+        val permisoPreciso =
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+        val permisoAproximado =
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+        if (permisoPreciso || permisoAproximado) {
+
+            try {
+
+                mapa.isMyLocationEnabled = true
+                mapa.uiSettings.isMyLocationButtonEnabled = false
+
+            } catch (exception: SecurityException) {
+
+                mapa.isMyLocationEnabled = false
+            }
+        }
+    }
+
+    /**
+     * Obtiene la ubicación mediante GPS y red.
+     * La búsqueda termina después de 15 segundos.
      */
     @SuppressLint("MissingPermission")
     private fun obtenerUbicacionActual() {
@@ -304,22 +371,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnUsarUbicacion.isEnabled = false
-        btnUsarUbicacion.text = "Obteniendo ubicación..."
+        btnUsarUbicacion.text =
+            "Obteniendo ubicación..."
 
-        /*
-         * Busca primero una ubicación previamente guardada
-         * por GPS o por la red.
-         */
         val ultimaUbicacionDisponible =
             obtenerUltimaUbicacionDisponible()
 
         /*
-         * Cuando la ubicación guardada tiene menos de cinco minutos,
-         * se usa inmediatamente y no se espera una nueva lectura.
+         * Utiliza inmediatamente una ubicación
+         * registrada hace menos de cinco minutos.
          */
         if (
             ultimaUbicacionDisponible != null &&
-            ubicacionEsReciente(ultimaUbicacionDisponible)
+            ubicacionEsReciente(
+                ultimaUbicacionDisponible
+            )
         ) {
 
             mostrarUbicacionActual(
@@ -330,38 +396,38 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val nuevoListener = object : LocationListener {
+        val nuevoListener =
+            object : LocationListener {
 
-            override fun onLocationChanged(
-                ubicacion: Location
-            ) {
+                override fun onLocationChanged(
+                    ubicacion: Location
+                ) {
 
-                cancelarSolicitudUbicacion()
+                    cancelarSolicitudUbicacion()
 
-                mostrarUbicacionActual(
-                    ubicacion
-                )
+                    mostrarUbicacionActual(
+                        ubicacion
+                    )
 
-                restaurarBotonUbicacion()
+                    restaurarBotonUbicacion()
+                }
+
+                override fun onProviderDisabled(
+                    provider: String
+                ) {
+                    /*
+                     * El otro proveedor todavía
+                     * puede entregar una ubicación.
+                     */
+                }
             }
-
-            override fun onProviderDisabled(
-                provider: String
-            ) {
-
-                /*
-                 * No se cancela inmediatamente porque el otro
-                 * proveedor todavía podría responder.
-                 */
-            }
-        }
 
         listenerUbicacion = nuevoListener
 
         try {
 
             /*
-             * La ubicación por red normalmente responde más rápido.
+             * La red suele responder antes que el GPS.
              */
             if (redDisponible) {
 
@@ -375,7 +441,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             /*
-             * El GPS también se consulta cuando existe permiso preciso.
+             * El GPS se utiliza solamente cuando
+             * existe permiso de ubicación precisa.
              */
             if (gpsDisponible && permisoPreciso) {
 
@@ -403,8 +470,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         /*
-         * Esta tarea se ejecutará si en 15 segundos
-         * ningún proveedor entrega una ubicación.
+         * Cancela la búsqueda después de 15 segundos.
          */
         val nuevaTareaTiempoEspera = Runnable {
 
@@ -428,13 +494,14 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(
                     this,
                     "No se pudo obtener tu ubicación. " +
-                            "Acércate a una ventana o selecciona el punto en el mapa.",
+                            "Selecciona el punto manualmente en el mapa.",
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
 
-        tareaTiempoEspera = nuevaTareaTiempoEspera
+        tareaTiempoEspera =
+            nuevaTareaTiempoEspera
 
         manejadorUbicacion.postDelayed(
             nuevaTareaTiempoEspera,
@@ -443,12 +510,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Busca la ubicación más reciente entre GPS y red.
+     * Busca la ubicación guardada más reciente
+     * entre GPS y red.
      */
     @SuppressLint("MissingPermission")
     private fun obtenerUltimaUbicacionDisponible(): Location? {
 
-        val ubicaciones = mutableListOf<Location>()
+        val ubicaciones =
+            mutableListOf<Location>()
 
         try {
 
@@ -491,20 +560,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Comprueba si la ubicación tiene menos de cinco minutos.
+     * Determina si la ubicación fue obtenida
+     * durante los últimos cinco minutos.
      */
     private fun ubicacionEsReciente(
         ubicacion: Location
     ): Boolean {
 
         val antiguedad =
-            System.currentTimeMillis() - ubicacion.time
+            System.currentTimeMillis() -
+                    ubicacion.time
 
         return antiguedad in 0..300_000L
     }
 
     /**
-     * Cancela las solicitudes y el tiempo máximo de espera.
+     * Detiene las solicitudes de ubicación.
      */
     private fun cancelarSolicitudUbicacion() {
 
@@ -531,7 +602,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Vuelve a activar el botón de ubicación.
+     * Reactiva el botón de ubicación.
      */
     private fun restaurarBotonUbicacion() {
 
@@ -541,7 +612,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Muestra la ubicación obtenida en el mapa.
+     * Muestra en Google Maps la ubicación
+     * obtenida mediante Android.
      */
     private fun mostrarUbicacionActual(
         ubicacion: Location
@@ -559,7 +631,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Guarda las coordenadas y coloca el marcador personalizado.
+     * Guarda las coordenadas y coloca
+     * el marcador personalizado.
      */
     private fun seleccionarUbicacion(
         punto: LatLng,
@@ -570,13 +643,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        latitudSeleccionada = punto.latitude
-        longitudSeleccionada = punto.longitude
+        latitudSeleccionada =
+            punto.latitude
 
-        marcadorSeleccionado?.let { marcadorAnterior ->
+        longitudSeleccionada =
+            punto.longitude
 
-            mapa.removeMarker(marcadorAnterior)
-        }
+        // Elimina el marcador anterior.
+        marcadorSeleccionado?.remove()
 
         val opcionesMarcador =
             MarkerOptions()
@@ -602,16 +676,17 @@ class MainActivity : AppCompatActivity() {
         mapa.animateCamera(
             CameraUpdateFactory.newLatLngZoom(
                 punto,
-                16.5
+                16.5f
             )
         )
 
-        tvCoordenadas.text = String.format(
-            Locale.US,
-            "Latitud: %.6f\nLongitud: %.6f",
-            punto.latitude,
-            punto.longitude
-        )
+        tvCoordenadas.text =
+            String.format(
+                Locale.US,
+                "Latitud: %.6f\nLongitud: %.6f",
+                punto.latitude,
+                punto.longitude
+            )
 
         btnConfirmarUbicacion.isEnabled = true
         btnConfirmarUbicacion.text =
@@ -619,9 +694,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Convierte el marcador vectorial en un icono de MapLibre.
+     * Convierte el drawable vectorial
+     * en un icono de Google Maps.
      */
-    private fun crearIconoMarcador(): Icon? {
+    private fun crearIconoMarcador(): BitmapDescriptor? {
 
         val drawable =
             AppCompatResources.getDrawable(
@@ -635,13 +711,15 @@ class MainActivity : AppCompatActivity() {
                             resources.displayMetrics.density
                     ).toInt()
 
-        val bitmap = Bitmap.createBitmap(
-            tamanoPixeles,
-            tamanoPixeles,
-            Bitmap.Config.ARGB_8888
-        )
+        val bitmap =
+            Bitmap.createBitmap(
+                tamanoPixeles,
+                tamanoPixeles,
+                Bitmap.Config.ARGB_8888
+            )
 
-        val canvas = Canvas(bitmap)
+        val canvas =
+            Canvas(bitmap)
 
         drawable.setBounds(
             0,
@@ -652,8 +730,7 @@ class MainActivity : AppCompatActivity() {
 
         drawable.draw(canvas)
 
-        return IconFactory
-            .getInstance(this)
+        return BitmapDescriptorFactory
             .fromBitmap(bitmap)
     }
 

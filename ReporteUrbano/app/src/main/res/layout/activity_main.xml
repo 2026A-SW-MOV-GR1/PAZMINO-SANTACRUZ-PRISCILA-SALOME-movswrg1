@@ -58,6 +58,7 @@
                     android:textColor="#FFFFFF"
                     android:textSize="10sp"
                     android:textStyle="bold" />
+
             </LinearLayout>
 
             <TextView
@@ -77,6 +78,7 @@
                 android:textColor="#CCFBF1"
                 android:textSize="11sp"
                 android:textStyle="bold" />
+
         </LinearLayout>
 
     </FrameLayout>
@@ -93,21 +95,23 @@
         android:clipToOutline="true"
         app:cardCornerRadius="28dp"
         app:cardElevation="8dp"
-        app:strokeColor="#BFD5E2"
-        app:strokeWidth="1dp"
         app:layout_constraintBottom_toTopOf="@id/cardDatosUbicacion"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/contenedorEncabezado">
+        app:layout_constraintTop_toBottomOf="@id/contenedorEncabezado"
+        app:strokeColor="#BFD5E2"
+        app:strokeWidth="1dp">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <org.maplibre.android.maps.MapView
+            <!-- Google Maps -->
+            <com.google.android.gms.maps.MapView
                 android:id="@+id/mapView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:contentDescription="Mapa para seleccionar la ubicación del incidente" />
 
             <!-- Instrucción visual -->
             <LinearLayout
@@ -139,6 +143,7 @@
                     android:textColor="#16324F"
                     android:textSize="13sp"
                     android:textStyle="bold" />
+
             </LinearLayout>
 
         </FrameLayout>
@@ -156,11 +161,11 @@
         app:cardBackgroundColor="#FFFFFF"
         app:cardCornerRadius="28dp"
         app:cardElevation="10dp"
-        app:strokeColor="#D8E4EA"
-        app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="#D8E4EA"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -190,6 +195,7 @@
                         android:textColor="#0F766E"
                         android:textSize="18sp"
                         android:textStyle="bold" />
+
                 </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
@@ -215,6 +221,7 @@
                         android:text="Selecciona el punto con precisión"
                         android:textColor="#718096"
                         android:textSize="12sp" />
+
                 </LinearLayout>
 
                 <TextView
@@ -229,6 +236,7 @@
                     android:textColor="#B45309"
                     android:textSize="9sp"
                     android:textStyle="bold" />
+
             </LinearLayout>
 
             <!-- Coordenadas -->
@@ -246,8 +254,8 @@
                     android:id="@+id/tvCoordenadas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="58dp"
                     android:gravity="center_vertical"
+                    android:minHeight="58dp"
                     android:paddingStart="16dp"
                     android:paddingTop="10dp"
                     android:paddingEnd="16dp"
@@ -256,6 +264,7 @@
                     android:textColor="#35605D"
                     android:textSize="14sp"
                     android:textStyle="bold" />
+
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Botón ubicación actual -->

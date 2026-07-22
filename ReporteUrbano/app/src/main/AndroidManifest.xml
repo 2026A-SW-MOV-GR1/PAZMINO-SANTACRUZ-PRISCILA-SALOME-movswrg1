@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- Permiso para descargar y mostrar el mapa -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- Permisos para obtener la ubicación del dispositivo -->
+
+    <!-- Permiso para descargar y mostrar Google Maps -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Permisos para obtener la ubicación del dispositivo -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -14,19 +17,33 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ReporteUrbano">
+        android:theme="@style/Theme.ReporteUrbano"
+        tools:targetApi="31">
+
+        <!--
+            Google Maps obtiene la clave desde local.properties.
+            No reemplaces ${MAPS_API_KEY} por la clave directamente.
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".FormularioIncidenciaActivity"
             android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
     </application>
 
 </manifest>
