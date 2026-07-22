@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Colores principales -->
+    <color name="verde_principal">#0F766E</color>
+    <color name="verde_claro">#E6FFFA</color>
+    <color name="verde_borde">#43C6B7</color>
+
+    <!-- Colores de texto -->
+    <color name="texto_principal">#102A43</color>
+    <color name="texto_secundario">#607080</color>
+
+    <!-- Fondos -->
+    <color name="blanco">#FFFFFF</color>
+    <color name="fondo_coordenadas">#F0FDFA</color>
+
+    <!-- Colores adicionales de la aplicación -->
+    <color name="azul_estado">#2563EB</color>
+    <color name="azul_estado_texto">#1D4ED8</color>
+    <color name="azul_estado_fondo">#EFF6FF</color>
+    <color name="azul_estado_borde">#8DBAF5</color>
+
+    <color name="borde_tarjeta">#D7E3EA</color>
+    <color name="verde_coordenadas">#285653</color>
+    <color name="verde_coordenadas_borde">#70C9C0</color>
+
+</resources>
